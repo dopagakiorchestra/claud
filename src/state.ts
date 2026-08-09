@@ -185,6 +185,22 @@ export function loadSong(): Song {
   return normalizeSong(DEFAULT_SONG);
 }
 
+/**
+ * URL ハッシュを見ずに、保存されている曲だけを読む。
+ *
+ * ダンスのページで「コード進行のページで直したものを取り込む」ときに使う。
+ * 共有リンクで開いていると loadSong はハッシュを優先してしまうため、
+ * 保存内容を読みたい場面ではこちらを呼ぶ。
+ */
+export function loadStoredSong(): Song | null {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? normalizeSong(JSON.parse(stored)) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function saveSong(song: Song): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toPlain(song)));

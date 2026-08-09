@@ -22,7 +22,7 @@ import {
 } from "../src/dance/skeleton";
 
 function settings(over: Partial<DanceSettings> = {}): DanceSettings {
-  return { ...DEFAULT_DANCE, enabled: true, ...over };
+  return { ...DEFAULT_DANCE, ...over };
 }
 
 /** 骨の長さ（親子の距離）を測る。FK が正しければポーズによらず一定になる。 */

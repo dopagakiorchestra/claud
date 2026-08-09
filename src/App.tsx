@@ -21,7 +21,6 @@ import { isEmbedded, isIosDevice } from "./audio/compat";
 import { INSTRUMENTS } from "./audio/instruments";
 import { Player } from "./audio/player";
 import { ChordCard } from "./components/ChordCard";
-import { DanceStudio } from "./components/DanceStudio";
 import { FloatingTransport } from "./components/FloatingTransport";
 import { Keyboard } from "./components/Keyboard";
 import { NumberField } from "./components/NumberField";
@@ -36,6 +35,7 @@ import {
   usedOffsets,
 } from "./music/melody";
 import { pcName, prettyAccidentals } from "./music/notes";
+import { DANCE_PAGE, pageUrl } from "./pages";
 import { BASS_PATTERNS, CHORD_PATTERNS, DRUM_PATTERNS } from "./music/patterns";
 import { PRESETS, presetToSlots } from "./music/presets";
 import { SCALES } from "./music/scales";
@@ -556,6 +556,11 @@ export default function App() {
           <h1>🎹 Chord Progression Studio</h1>
           <p className="sub">
             コード進行を組んで、その場で試聴して、MP3でダウンロード。すべてブラウザ内で完結します。
+          </p>
+          <p className="sub">
+            <a className="page-link" href={pageUrl(DANCE_PAGE, song)}>
+              💃 この進行で踊る動画を作る →
+            </a>
           </p>
         </div>
       </header>
@@ -1218,14 +1223,6 @@ export default function App() {
           ])
         }
         onPreview={previewChord}
-      />
-
-      {/* --- ダンス動画 --- */}
-      <DanceStudio
-        song={song}
-        onChange={(dance, label) => setSong((s) => ({ ...s, dance }), label)}
-        playPosition={playPosition}
-        beatsPerLoop={arrangement.beatsPerLoop}
       />
 
       {/* --- プリセット --- */}

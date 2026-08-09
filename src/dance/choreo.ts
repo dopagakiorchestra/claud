@@ -39,8 +39,6 @@ export interface Choreography {
 
 /** 曲データに保存する振り付けの設定。 */
 export interface DanceSettings {
-  /** 振り付けを使うか。 */
-  enabled: boolean;
   /** 生成シード。変えると別の振り付けになる。 */
   seed: number;
   /** 動きの大きさ 0..1。 */
@@ -60,7 +58,6 @@ export interface DanceOverride {
 }
 
 export const DEFAULT_DANCE: DanceSettings = {
-  enabled: false,
   seed: 1,
   intensity: 0.7,
   bounce: 0.6,
@@ -238,7 +235,6 @@ export function normalizeDance(raw: unknown): DanceSettings {
   while (overrides.length > 0 && overrides[overrides.length - 1] === null) overrides.pop();
 
   return {
-    enabled: typeof o.enabled === "boolean" ? o.enabled : DEFAULT_DANCE.enabled,
     seed: Math.round(num(o.seed, 1, 999999, DEFAULT_DANCE.seed)),
     intensity: num(o.intensity, 0, 1, DEFAULT_DANCE.intensity),
     bounce: num(o.bounce, 0, 1, DEFAULT_DANCE.bounce),

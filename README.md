@@ -31,6 +31,8 @@ MP3のエンコードまで端末上で行われます。
 ### ダンス動画
 
 **振り付けを考えなくても、曲に合った振りが出てくる**ことを目指した機能です。
+コード進行とは**別のページ**（`dance.html`）になっていて、ヘッダーのリンクで行き来します。
+曲データはリンクの URL と localStorage の両方で引き継がれます。
 
 出来上がるのは**無音のマネキン映像**で、これ自体が完成品ではありません。
 Domo AI のような映像変換サービスに通してキャラクターに置き換え、音はこのアプリの
@@ -56,9 +58,9 @@ npm run dev      # 開発サーバー（http://localhost:5173）
 
 ```bash
 npm run build         # 型チェック + 本番ビルド → dist/
-npm run build:single  # 1枚のHTMLにまとめる → dist-single/
+npm run build:single  # ページごとに1枚のHTMLにまとめる → dist-single/
 npm run preview       # ビルド結果を確認
-npm test              # テスト（音楽理論・アレンジ・エンコーダ）
+npm test              # テスト（音楽理論・アレンジ・エンコーダ・振り付け）
 ```
 
 ### 置き場所
@@ -74,10 +76,17 @@ npm test              # テスト（音楽理論・アレンジ・エンコー�
 `vite.config.ts` で `base: "./"` にしてあるので、`dist/` をそのまま静的ホスティング
 （GitHub Pages のサブディレクトリ配信など）に置けます。
 
-`npm run build:single` は CSS と JS をインライン化した
-`dist-single/chord-progression-studio.html` を作ります。**外部ファイルを一切
-読み込まない1枚のHTML**なので、ダブルクリックでそのままブラウザで開けますし、
-ファイルを1つ配るだけで誰にでも渡せます。
+`npm run build:single` は CSS と JS をインライン化した HTML を、ページごとに作ります。
+
+```
+dist-single/chord-progression-studio.html   コード進行
+dist-single/dance-studio.html               ダンス動画
+```
+
+**外部ファイルを一切読み込まない1枚のHTML**なので、ダブルクリックでそのまま
+ブラウザで開けますし、ファイルを配るだけで誰にでも渡せます。2枚を同じフォルダに
+置けば、ページ間のリンクもそのまま動きます（リンク先のファイル名はビルド時に
+差し替えています）。
 
 ---
 
@@ -126,6 +135,21 @@ Web Share API は**ユーザー操作の直後**しか呼べません。レン�
 
 なお `web-share` は Permissions Policy の対象で、**iframe にはデフォルトで許可されません**。
 埋め込み表示では 1 も 2 も塞がれるため、iPhone では単独のタブで開く必要があります。
+
+### ページを分けている理由
+
+コード進行のページは既に縦に長く、そこへ振り付けのパネルを足すと、
+どちらの作業をしているのか分からなくなります。HTML を分けて、コード進行の画面には
+リンク1本だけを置く形にしました。
+
+分けたぶん、曲データの受け渡しが要ります。`localStorage` に保存された曲を読むのが基本で、
+リンクには `#s=...` で曲を載せているため、別のブラウザや共有されたリンクからでも
+同じ曲のまま行き来できます。ダンスのページには「進行を読み直す」があり、
+別タブでコード進行を直したときに、**振り付けの設定を保ったまま進行だけ**を取り込めます。
+
+ビルドは Vite の多ページ構成（`rollupOptions.input` に HTML を2枚）です。
+`build:single` だけは、共通チャンクが切り出されると1枚にまとめられないので、
+ページごとに独立したビルドを走らせています。
 
 ### 振り付けの作り方
 
@@ -208,7 +232,12 @@ src/
 │  └─ video.ts        canvas.captureStream + MediaRecorder で動画化
 ├─ components/       UI 部品
 ├─ state.ts          初期値・localStorage保存・共有リンクの符号化と検証
-└─ App.tsx           画面全体
+├─ pages.ts          ページ間リンクの行き先（ビルド時に差し替わる）
+├─ App.tsx           コード進行のページ
+└─ DanceApp.tsx      ダンス動画のページ
+
+index.html + src/main.tsx        コード進行の入口
+dance.html + src/dance-main.tsx  ダンス動画の入口
 
 tests/
 ├─ theory.test.ts       音名、コード、スケール導出、ボイシング、プリセット
