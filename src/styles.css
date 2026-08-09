@@ -1243,6 +1243,134 @@ button:focus-visible {
   color: var(--text-dim);
 }
 
+/* --- ページ間のリンク --- */
+
+.page-link {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.page-link:hover,
+.page-link:focus-visible {
+  border-bottom-color: var(--accent);
+}
+
+/* --- ダンス動画 --- */
+
+.song-summary {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  margin-bottom: 12px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.song-summary-key {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.song-summary-chords {
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+}
+
+
+.dance-layout {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 12px;
+}
+
+.dance-preview canvas {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+
+.dance-preview .row {
+  margin-bottom: 4px;
+}
+
+.dance-controls {
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dance-heading {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  margin: 20px 0 8px;
+  font-weight: 600;
+}
+
+.dance-blocks {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dance-blocks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+}
+
+/* 手で選んだブロックは、引き直しても残るので目印を付ける */
+.dance-blocks li.manual {
+  border-color: var(--accent);
+}
+
+.dance-blocks select {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  color: var(--text);
+  flex: 1;
+  min-width: 140px;
+}
+
+.dance-block-range {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  min-width: 72px;
+}
+
+/* 書き出し用の canvas。captureStream が動くよう、消さずに画面外へ逃がす */
+.dance-export-canvas {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
 /* --- 狭い画面 --- */
 
 @media (max-width: 640px) {
