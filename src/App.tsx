@@ -21,6 +21,7 @@ import { isEmbedded, isIosDevice } from "./audio/compat";
 import { INSTRUMENTS } from "./audio/instruments";
 import { Player } from "./audio/player";
 import { ChordCard } from "./components/ChordCard";
+import { DanceStudio } from "./components/DanceStudio";
 import { FloatingTransport } from "./components/FloatingTransport";
 import { Keyboard } from "./components/Keyboard";
 import { NumberField } from "./components/NumberField";
@@ -1217,6 +1218,14 @@ export default function App() {
           ])
         }
         onPreview={previewChord}
+      />
+
+      {/* --- ダンス動画 --- */}
+      <DanceStudio
+        song={song}
+        onChange={(dance, label) => setSong((s) => ({ ...s, dance }), label)}
+        playPosition={playPosition}
+        beatsPerLoop={arrangement.beatsPerLoop}
       />
 
       {/* --- プリセット --- */}

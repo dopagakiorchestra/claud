@@ -5,6 +5,7 @@
  * 外部から来た文字列なので、読み込み時は必ず値を検証してから使う。
  */
 
+import { DEFAULT_DANCE, normalizeDance } from "./dance/choreo";
 import { hasQuality } from "./music/chords";
 import { CHORD_PATTERNS, BASS_PATTERNS, DRUM_PATTERNS } from "./music/patterns";
 import { SCALES } from "./music/scales";
@@ -44,6 +45,7 @@ export const DEFAULT_SONG: Song = {
   melodyInstrument: "epiano",
   melodyOctave: 0,
   melodyVolume: 0.9,
+  dance: DEFAULT_DANCE,
 };
 
 function clamp(n: unknown, min: number, max: number, fallback: number): number {
@@ -105,6 +107,8 @@ export function normalizeSong(raw: unknown): Song {
     ),
     melodyOctave: Math.round(clamp(o.melodyOctave, -2, 2, DEFAULT_SONG.melodyOctave)),
     melodyVolume: clamp(o.melodyVolume, 0, 1, DEFAULT_SONG.melodyVolume),
+
+    dance: normalizeDance(o.dance),
   };
 }
 

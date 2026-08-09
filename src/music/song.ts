@@ -5,6 +5,7 @@
  * （OfflineAudioContext）の両方が共有する。だから「聴こえたとおりに書き出される」。
  */
 
+import type { DanceSettings } from "../dance/choreo";
 import { chordPitchClasses, prettyChordName } from "./chords";
 import { fitSteps, melodyToNotes, stepCount, type Step } from "./melody";
 import { mod12, prefersFlats } from "./notes";
@@ -74,6 +75,10 @@ export interface Song {
   melodyOctave: number;
   /** 0..1 のメロディ音量。 */
   melodyVolume: number;
+
+  // --- 振り付け ---
+  /** ダンス動画の振り付け設定。曲と一緒に保存・共有される。 */
+  dance: DanceSettings;
 }
 
 /** コード1つあたりの表示情報つき解析結果。 */

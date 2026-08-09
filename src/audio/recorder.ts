@@ -65,7 +65,7 @@ export interface RecordResult {
 }
 
 /** MP4 のサンプルエントリ（コーデック）の FourCC を読み出す。 */
-function readMp4SampleEntry(bytes: Uint8Array): string | null {
+export function readMp4SampleEntry(bytes: Uint8Array): string | null {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const fourcc = (at: number) =>
     String.fromCharCode(bytes[at], bytes[at + 1], bytes[at + 2], bytes[at + 3]);
