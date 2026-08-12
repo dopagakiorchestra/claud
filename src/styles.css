@@ -3,59 +3,78 @@
  *
  * 個々の見た目に直接カラーコードを書かないこと。ここを差し替えるだけで
  * 全体の印象を変えられる状態を保つため。
+ *
+ * 「真夜中のスタジオ」… 焦げ茶の暗がりに、木とオレンジと真鍮。
+ * 青系を使わないことで、よく見かける配色から離している。
  */
 :root {
   /* 面 */
-  --bg: #0e1018;
-  --bg-glow: #1b2138;
-  --bg-raised: #171a26;
-  --bg-input: #1f2333;
-  --bg-hover: #272d42;
-  --bg-sunken: #22263a;
-  --bg-tonic: #1c2032;
-  --bg-roll: #14172233;
+  --bg: #12100f;
+  --bg-glow: #241c17;
+  --bg-raised: #1c1917;
+  --bg-input: #252120;
+  --bg-hover: #363332;
+  --bg-sunken: #211e1d;
+  --bg-tonic: #2a2725;
+  --bg-roll: #1c191755;
+  /* 追従バーの背景。下の内容が透けすぎない濃さにする */
+  --bar-bg: rgba(28, 25, 23, 0.98);
 
   /* 線 */
-  --border: #2b3145;
-  --border-strong: #3c4363;
-  --border-hover: #3d4568;
+  --border: #38312d;
+  --border-strong: #645e5b;
+  --border-hover: #746f6c;
 
   /* 文字 */
-  --text: #e8eaf2;
-  --text-dim: #9aa2bd;
-  --text-faint: #6b7392;
+  --text: #f2ece5;
+  --text-dim: #b0a49a;
+  --text-faint: #7d726a;
 
   /* 主役の色と、その上に乗る文字 */
-  --accent: #6c8cff;
-  --accent-hi: #7b98ff;
-  --accent-lo: #5a78f0;
-  --accent-pale: #a9c0ff;
-  --accent-deep: #3f5cd0;
-  --accent-edge: #2b3c8c;
-  --on-accent: #0c1020;
+  --accent: #e8703a;
+  --accent-hi: #eb8152;
+  --accent-lo: #c35e31;
+  --accent-pale: #f2b093;
+  --accent-deep: #9e4c27;
+  --accent-edge: #68321a;
+  --on-accent: #1a0e07;
+  --accent-tint: rgba(232, 112, 58, 0.07);
+  --accent-tint-soft: rgba(232, 112, 58, 0.055);
+  --accent-wash: rgba(232, 112, 58, 0.12);
+  --accent-glow: rgba(232, 112, 58, 0.35);
 
   /* 添えの色（書き出しボタン、再生中の印） */
-  --accent-2: #38d1b6;
-  --accent-2-hi: #4fdcc2;
-  --accent-2-lo: #2bb69c;
-  --on-accent-2: #04201b;
+  --accent-2: #d8b25a;
+  --accent-2-hi: #ddbd71;
+  --accent-2-lo: #ad8e48;
+  --on-accent-2: #231a06;
+  --accent-2-tint: rgba(216, 178, 90, 0.09);
+  --accent-2-tint-strong: rgba(216, 178, 90, 0.16);
+  --accent-2-line: rgba(216, 178, 90, 0.4);
+  --accent-2-wash: rgba(216, 178, 90, 0.1);
+  --accent-2-shadow: rgba(216, 178, 90, 0.55);
 
   /* メロディの音符 */
-  --note-hi: #7be0c6;
-  --note-lo: #2bb69c;
+  --note-hi: #e3c888;
+  --note-lo: #ad8e48;
 
   /* 度数表示・鍵盤のハイライト */
-  --accent-warm: #ffb454;
-  --warm-hi: #ffd79a;
-  --warm-lo: #d98c2a;
-  --warm-edge: #e59a3a;
+  --accent-warm: #8fb98a;
+  --warm-hi: #b6d2b3;
+  --warm-lo: #6b8b68;
+  --warm-edge: #7a9d75;
+  --warm-tint: rgba(143, 185, 138, 0.1);
+  --warm-line: rgba(143, 185, 138, 0.4);
+  --warm-ring: rgba(143, 185, 138, 0.85);
 
   /* 鍵盤 */
-  --key-white: #e7e9f2;
-  --key-white-edge: #b7bcd0;
-  --key-black-edge: #05070f;
+  --key-white: #efe9e2;
+  --key-white-edge: #bfbab5;
+  --key-black-edge: #090808;
 
-  --danger: #ff6b7d;
+  --danger: #e05c5c;
+  --danger-tint: rgba(224, 92, 92, 0.1);
+  --danger-line: rgba(224, 92, 92, 0.45);
 
   --radius: 10px;
   --radius-sm: 7px;
@@ -344,7 +363,7 @@ button:focus-visible {
 
 .chord-card.active {
   border-color: var(--accent-2);
-  box-shadow: 0 0 0 1px var(--accent-2), 0 6px 22px -8px rgba(56, 209, 182, 0.55);
+  box-shadow: 0 0 0 1px var(--accent-2), 0 6px 22px -8px var(--accent-2-shadow);
   transform: translateY(-2px);
 }
 
@@ -594,8 +613,8 @@ button:focus-visible {
   flex-wrap: wrap;
   margin-top: 12px;
   padding: 11px 12px;
-  background: rgba(56, 209, 182, 0.09);
-  border: 1px solid rgba(56, 209, 182, 0.4);
+  background: var(--accent-2-tint);
+  border: 1px solid var(--accent-2-line);
   border-radius: var(--radius-sm);
 }
 
@@ -632,15 +651,15 @@ button:focus-visible {
   gap: 8px;
   margin-top: 4px;
   padding: 11px 12px;
-  background: rgba(255, 107, 125, 0.1);
-  border: 1px solid rgba(255, 107, 125, 0.45);
+  background: var(--danger-tint);
+  border: 1px solid var(--danger-line);
   border-radius: var(--radius-sm);
 }
 
 .notice {
   border-radius: var(--radius-sm);
-  background: rgba(255, 180, 84, 0.1);
-  border: 1px solid rgba(255, 180, 84, 0.4);
+  background: var(--warm-tint);
+  border: 1px solid var(--warm-line);
   margin: 12px 0 0;
   padding: 10px 12px;
   font-size: 12.5px;
@@ -816,7 +835,7 @@ button:focus-visible {
 
 /* 今のコードに含まれる音（合いやすい音）を薄く示す */
 .roll-cell.chord-tone {
-  background: rgba(108, 140, 255, 0.1);
+  background: var(--accent-tint);
 }
 
 /* スケールから外れた行 */
@@ -825,7 +844,7 @@ button:focus-visible {
 }
 
 .roll-cell.out.chord-tone {
-  background: rgba(108, 140, 255, 0.08);
+  background: var(--accent-tint-soft);
 }
 
 /* 置かれた音 */
@@ -843,7 +862,7 @@ button:focus-visible {
 }
 
 .roll-cell.playing {
-  box-shadow: inset 0 0 0 1px rgba(255, 180, 84, 0.85);
+  box-shadow: inset 0 0 0 1px var(--warm-ring);
 }
 
 /* 目盛り。タップした位置から再生する */
@@ -913,7 +932,7 @@ button:focus-visible {
 }
 
 .legend-swatch.chord-tone {
-  background: rgba(108, 140, 255, 0.35);
+  background: var(--accent-glow);
 }
 
 /* --- マイ進行 --- */
@@ -1025,7 +1044,7 @@ button:focus-visible {
   align-items: center;
   gap: 2px;
   padding: 14px 16px;
-  background: rgba(20, 23, 34, 0.98);
+  background: var(--bar-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 2px dashed var(--border-strong);
@@ -1048,7 +1067,7 @@ button:focus-visible {
 .drop-zone.over {
   border-color: var(--accent-2);
   border-style: solid;
-  background: rgba(56, 209, 182, 0.16);
+  background: var(--accent-2-tint-strong);
   transform: translateX(-50%) scale(1.02);
 }
 
@@ -1086,7 +1105,7 @@ button:focus-visible {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: rgba(20, 23, 34, 0.98);
+  background: var(--bar-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--accent);
@@ -1134,7 +1153,7 @@ button:focus-visible {
   padding: 9px 12px;
   margin-bottom: max(12px, env(safe-area-inset-bottom));
   /* backdrop-filter が効かない環境でも下の文字が透けないよう、ほぼ不透明にする */
-  background: rgba(20, 23, 34, 0.98);
+  background: var(--bar-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-strong);
@@ -1248,8 +1267,8 @@ button:focus-visible {
 .support {
   background: linear-gradient(
     135deg,
-    rgba(108, 140, 255, 0.12),
-    rgba(56, 209, 182, 0.1)
+    var(--accent-wash),
+    var(--accent-2-wash)
   );
   border-color: var(--border-strong);
 }
