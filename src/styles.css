@@ -1326,3 +1326,12 @@ button:focus-visible {
     min-width: 84px;
   }
 }
+
+/* 自動生成の雰囲気を選ぶ小さなセレクト */
+.mood {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 13px;
+}
