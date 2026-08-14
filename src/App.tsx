@@ -34,10 +34,11 @@ import {
   stepCount,
   usedOffsets,
 } from "./music/melody";
+import { MELODY_MOODS, generateMelody, getMelodyMood } from "./music/generate";
 import { pcName, prettyAccidentals } from "./music/notes";
 import { BASS_PATTERNS, CHORD_PATTERNS, DRUM_PATTERNS } from "./music/patterns";
 import { PRESETS, presetToSlots } from "./music/presets";
-import { SCALES } from "./music/scales";
+import { SCALES, getScale } from "./music/scales";
 import {
   buildArrangement,
   makeSlot,
@@ -448,6 +449,7 @@ export default function App() {
 
   // --- メロディ ---
   const [chromaticRows, setChromaticRows] = useState(false);
+  const [melodyMood, setMelodyMood] = useState<string>("normal");
 
   /** 進行の長さに合わせたステップ配列。編集も再生もこれを基準にする。 */
   const melodySteps = useMemo(
@@ -488,6 +490,37 @@ export default function App() {
   const clearMelody = useCallback(() => {
     setSong((s) => ({ ...s, melody: [] }), "melody-clear");
   }, [setSong]);
+
+  /**
+   * メロディを自動で作る。押すたびに違うものが出る。
+   *
+   * 種は保存せず、できあがったステップ配列だけを保存する。同じ曲を
+   * 開いたら必ず同じ音が鳴ってほしいため。気に入らなければもう一度押す。
+   */
+  const generateMelodyNow = useCallback(() => {
+    setSong((s) => {
+      const resolvedNow = resolveChords(s);
+      if (resolvedNow.length === 0) return s;
+      const mood = getMelodyMood(melodyMood);
+      const beats = s.chords.reduce((sum, c) => sum + c.beats, 0);
+      const melody = generateMelody({
+        chords: resolvedNow.map((c) => ({
+          startBeat: c.startBeat,
+          beats: c.beats,
+          pitchClasses: c.pitchClasses,
+        })),
+        beatsPerLoop: beats,
+        beatsPerBar: s.beatsPerBar,
+        stepsPerBeat: s.melodyStepsPerBeat,
+        tonic: s.tonic,
+        scaleDegrees: getScale(s.scale).degrees,
+        density: mood.density,
+        leapiness: mood.leapiness,
+        seed: (Date.now() ^ Math.floor(Math.random() * 0xffffff)) >>> 0,
+      });
+      return { ...s, melody, melodyEnabled: true };
+    }, "melody-generate");
+  }, [setSong, melodyMood]);
 
   /**
    * 細かさを変える。今あるメロディは時間の位置を保ったまま作り直す
@@ -1163,6 +1196,28 @@ export default function App() {
             />
             半音も表示
           </label>
+
+          <button
+            className="btn small primary"
+            onClick={generateMelodyNow}
+            disabled={song.chords.length === 0}
+            title="今の進行に合うメロディを作ります。押すたびに変わります"
+          >
+            ✨ 自動で作る
+          </button>
+
+          <select
+            className="mood"
+            aria-label="自動生成の雰囲気"
+            value={melodyMood}
+            onChange={(e) => setMelodyMood(e.target.value)}
+          >
+            {MELODY_MOODS.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </select>
 
           <button
             className="btn small"
