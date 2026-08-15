@@ -65,12 +65,15 @@ export const PRESETS: Preset[] = [
     id: "komuro",
     name: "小室進行（vi–IV–V–I）",
     hint: "疾走感のあるダンスポップ。90年代J-POPの定番。",
-    scale: "minor",
+    // 鳴る和音は同じでも、主音をどこに置くかで「何調の曲か」が変わる。
+    // 名前どおり vi から始まって I に着地する形＝選んだキーがそのまま
+    // 曲の中心になるように、メジャーの度数で持つ。
+    scale: "major",
     chords: [
-      [0, "min"],
-      [8, "maj"],
-      [10, "maj"],
-      [3, "maj"],
+      [9, "min"],
+      [5, "maj"],
+      [7, "maj"],
+      [0, "maj"],
     ],
   },
   {
