@@ -4,6 +4,7 @@ import {
   chordIndexAtStep,
   fitSteps,
   hasMelody,
+  HOLD,
   melodyMidi,
   melodyToNotes,
   pitchRowsFor,
@@ -156,12 +157,25 @@ describe("ステップから音符への変換", () => {
     expect(notes[0].dur).toBeCloseTo(0.5 * 0.98, 6);
   });
 
-  it("同じ音が続くと1つの長い音にまとまる", () => {
-    const notes = melodyToNotes([4, 4, 4, null], 0, 2, 0);
+  it("伸ばしの印が続くと1つの長い音になる", () => {
+    const notes = melodyToNotes([4, HOLD, HOLD, null], 0, 2, 0);
     expect(notes).toHaveLength(1);
     expect(notes[0].start).toBe(0);
     // 3ステップぶん＝1.5拍
     expect(notes[0].dur).toBeCloseTo(1.5 * 0.98, 6);
+  });
+
+  it("同じ音が隣り合っていれば別々に鳴る（連打できる）", () => {
+    const notes = melodyToNotes([4, 4, 4, null], 0, 2, 0);
+    expect(notes).toHaveLength(3);
+    expect(notes.map((n) => n.start)).toEqual([0, 0.5, 1]);
+    expect(new Set(notes.map((n) => n.midi)).size).toBe(1);
+  });
+
+  it("16分で同じ音を2つ並べても、2音目が鳴る", () => {
+    const notes = melodyToNotes([0, 0, null, null], 0, 4, 0);
+    expect(notes).toHaveLength(2);
+    expect(notes.map((n) => n.start)).toEqual([0, 0.25]);
   });
 
   it("違う音が隣り合えば別の音符になる", () => {
@@ -177,10 +191,17 @@ describe("ステップから音符への変換", () => {
     expect(notes.map((n) => n.start)).toEqual([0, 1]);
   });
 
-  it("末尾まで続く音も正しく閉じる", () => {
-    const notes = melodyToNotes([7, 7], 0, 2, 0);
+  it("末尾まで伸びている音も正しく閉じる", () => {
+    const notes = melodyToNotes([7, HOLD], 0, 2, 0);
     expect(notes).toHaveLength(1);
     expect(notes[0].dur).toBeCloseTo(1 * 0.98, 6);
+  });
+
+  it("音の無いところの伸ばしは休符として扱う", () => {
+    expect(melodyToNotes([HOLD, HOLD], 0, 2, 0)).toEqual([]);
+    const notes = melodyToNotes([null, HOLD, 5], 0, 2, 0);
+    expect(notes).toHaveLength(1);
+    expect(notes[0].start).toBe(1);
   });
 
   it("すべて休符なら音符は出ない", () => {

@@ -8,7 +8,7 @@
 import { describe, expect, it } from "vitest";
 
 import { generateMelody, getMelodyMood, MELODY_MOODS, type ChordSpan } from "../src/music/generate";
-import { hasMelody, type Step } from "../src/music/melody";
+import { hasMelody, resolveSteps, type Step } from "../src/music/melody";
 import { mod12 } from "../src/music/notes";
 import { getScale } from "../src/music/scales";
 import { makeSlot, resolveChords } from "../src/music/song";
@@ -40,15 +40,14 @@ function gen(patch: Partial<Parameters<typeof generateMelody>[0]> = {}): Step[] 
   });
 }
 
-/** 連続する同じ高さをまとめて、鳴る音の並びにする。 */
+/** 伸ばしをまとめて、実際に鳴る音の並びにする。 */
 function notes(steps: Step[]): Array<{ offset: number; at: number; len: number }> {
   const out: Array<{ offset: number; at: number; len: number }> = [];
-  for (let i = 0; i < steps.length; i++) {
-    const v = steps[i];
-    if (v === null) continue;
-    if (out.length > 0 && steps[i - 1] === v) out[out.length - 1].len++;
-    else out.push({ offset: v, at: i, len: 1 });
-  }
+  resolveSteps(steps).forEach((r, i) => {
+    if (r.offset === null) return;
+    if (r.held && out.length > 0) out[out.length - 1].len++;
+    else out.push({ offset: r.offset, at: i, len: 1 });
+  });
   return out;
 }
 

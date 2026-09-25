@@ -29,8 +29,12 @@ import { Palette } from "./components/Palette";
 import {
   fitSteps,
   hasMelody,
+  HOLD,
   melodyMidi,
   pitchRowsFor,
+  REST,
+  rescaleSteps,
+  resolveSteps,
   stepCount,
   usedOffsets,
 } from "./music/melody";
@@ -468,6 +472,15 @@ export default function App() {
   const melodyHasNotes = hasMelody(melodySteps);
 
   /** マスをタップ。同じ音なら消し、違えば置き換える。 */
+  /**
+   * マスをタップしたときの切り替え。
+   *
+   * 直前のマスが同じ高さで鳴っているときだけ、3段階で回す。
+   *   空 → 伸ばす → 打ち直す → 空
+   * 「続けて置くと長い音になる」という今までの手触りはそのままに、
+   * もう一度タップすれば同じ音を連打できる。
+   * それ以外のマスは、これまでどおり 置く／消す の2段階。
+   */
   const toggleMelodyStep = useCallback(
     (stepIndex: number, offset: number) => {
       setSong((s) => {
@@ -479,9 +492,19 @@ export default function App() {
           ),
         );
         const next = [...steps];
-        next[stepIndex] = next[stepIndex] === offset ? null : offset;
+        const here = next[stepIndex];
+        const prevSounding = resolveSteps(next)[stepIndex - 1]?.offset ?? null;
+
+        if (prevSounding === offset) {
+          if (here === REST) next[stepIndex] = HOLD;
+          else if (here === HOLD) next[stepIndex] = offset;
+          else next[stepIndex] = REST;
+        } else {
+          next[stepIndex] = here === offset ? REST : offset;
+        }
+
         // 音を置いたらメロディを自動的に有効にする（鳴らない理由を探させないため）
-        return { ...s, melody: next, melodyEnabled: s.melodyEnabled || next[stepIndex] !== null };
+        return { ...s, melody: next, melodyEnabled: s.melodyEnabled || hasMelody(next) };
       }, `melody:${stepIndex}`);
     },
     [setSong],
@@ -531,12 +554,7 @@ export default function App() {
       setSong((s) => {
         const beats = s.chords.reduce((sum, c) => sum + c.beats, 0);
         const from = fitSteps(s.melody, stepCount(beats, s.melodyStepsPerBeat));
-        const to = Array<number | null>(stepCount(beats, next)).fill(null);
-        for (let i = 0; i < from.length; i++) {
-          if (from[i] === null) continue;
-          const at = Math.round((i / s.melodyStepsPerBeat) * next);
-          if (at < to.length) to[at] = from[i];
-        }
+        const to = rescaleSteps(from, s.melodyStepsPerBeat, next, stepCount(beats, next));
         return { ...s, melody: to, melodyStepsPerBeat: next };
       }, "melodySteps");
     },

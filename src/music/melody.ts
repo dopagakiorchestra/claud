@@ -15,8 +15,52 @@ import { getScale, type Scale } from "./scales";
 /** 休符を表す。 */
 export const REST = null;
 
-/** メロディの1ステップ。主音からの半音数、または休符。 */
+/**
+ * 直前の音を伸ばすことを表す印。
+ *
+ * これが無かった頃は「同じ高さが隣り合っていれば1つの長い音」という
+ * 決まりにしていたが、それだと同じ音を続けて打ち直せない（2音目が
+ * 鳴らない）。伸ばすことを明示的に書けるようにして、
+ * 同じ高さが隣り合ったら別々の音として鳴るようにした。
+ *
+ * 音の高さと同じ配列に入れるので、高さとして起こり得ない値にしてある。
+ */
+export const HOLD = -128;
+
+/** メロディの1ステップ。主音からの半音数、伸ばし、または休符。 */
 export type Step = number | null;
+
+/** そのステップで実際に鳴っている音。 */
+export interface ResolvedStep {
+  /** 鳴っている高さ。休符なら null。 */
+  offset: number | null;
+  /** 直前から伸びている途中か（＝ここでは発音しない）。 */
+  held: boolean;
+}
+
+/**
+ * ステップ配列を「各マスで何が鳴っているか」に展開する。
+ *
+ * 伸ばしの印は、それ自体には高さが無い。画面に出すにも音にするにも
+ * 直前の音まで遡る必要があるので、一度ここで解決してから使う。
+ */
+export function resolveSteps(steps: Step[]): ResolvedStep[] {
+  const out: ResolvedStep[] = [];
+  let current: number | null = null;
+  for (const s of steps) {
+    if (s === HOLD) {
+      // 音が無いところから伸ばしようがないので、その場合は休符として扱う
+      out.push({ offset: current, held: current !== null });
+    } else if (s === REST) {
+      current = null;
+      out.push({ offset: null, held: false });
+    } else {
+      current = s;
+      out.push({ offset: s, held: false });
+    }
+  }
+  return out;
+}
 
 /** ピアノロールの1行。 */
 export interface PitchRow {
@@ -104,8 +148,8 @@ export function fitSteps(steps: Step[], length: number): Step[] {
 /**
  * ステップ配列を音符イベントに変換する。
  *
- * 同じ高さが隣り合っていれば1つの長い音にまとめる。これで「タップを続ける」
- * だけで音符の長さを指定できる。
+ * 伸ばしの印が続く間は1つの音として伸ばす。同じ高さが隣り合っている
+ * 場合は、それぞれ別の音として鳴らす（連打できるようにするため）。
  */
 export function melodyToNotes(
   steps: Step[],
@@ -116,6 +160,7 @@ export function melodyToNotes(
 ): NoteEvent[] {
   const out: NoteEvent[] = [];
   const stepBeats = 1 / stepsPerBeat;
+  const resolved = resolveSteps(steps);
 
   let runStart = -1;
   let runOffset: number | null = null;
@@ -132,23 +177,24 @@ export function melodyToNotes(
     runOffset = null;
   };
 
-  for (let i = 0; i < steps.length; i++) {
-    const s = steps[i];
-    if (s === runOffset) continue; // 同じ音が続いている
+  for (let i = 0; i < resolved.length; i++) {
+    const r = resolved[i];
+    if (r.held && runOffset !== null) continue; // 伸ばしている途中
     flush(i);
-    if (s !== REST) {
+    if (r.offset !== null && !r.held) {
       runStart = i;
-      runOffset = s;
+      runOffset = r.offset;
     }
   }
-  flush(steps.length);
+  flush(resolved.length);
 
   return out;
 }
 
 /** メロディが1音でも入っているか。 */
 export function hasMelody(steps: Step[]): boolean {
-  return steps.some((s) => s !== REST);
+  // 伸ばしの印だけが残っていても、鳴る音は無い
+  return steps.some((s) => s !== REST && s !== HOLD);
 }
 
 /**
@@ -182,6 +228,44 @@ export function pitchRowsFor(
 /** メロディで実際に使われている音の高さ（重複なし）。 */
 export function usedOffsets(steps: Step[]): number[] {
   const set = new Set<number>();
-  for (const s of steps) if (s !== REST) set.add(s);
+  for (const s of steps) if (s !== REST && s !== HOLD) set.add(s);
   return [...set];
+}
+
+/**
+ * 細かさ（1拍あたりのステップ数）を変えて作り直す。
+ *
+ * 位置だけでなく音の長さも移す。伸ばしの印を1つずつ移すと、
+ * 目が粗くなったときに間が抜けて音が切れてしまうため、
+ * 一度「どこから何ステップ鳴るか」に戻してから置き直している。
+ */
+export function rescaleSteps(
+  steps: Step[],
+  fromStepsPerBeat: number,
+  toStepsPerBeat: number,
+  newLength: number,
+): Step[] {
+  const out: Step[] = new Array(Math.max(0, newLength)).fill(REST);
+  if (fromStepsPerBeat <= 0 || toStepsPerBeat <= 0) return out;
+  const scale = toStepsPerBeat / fromStepsPerBeat;
+  const resolved = resolveSteps(steps);
+
+  let i = 0;
+  while (i < resolved.length) {
+    const r = resolved[i];
+    if (r.offset === null || r.held) {
+      i++;
+      continue;
+    }
+    let len = 1;
+    while (i + len < resolved.length && resolved[i + len].held) len++;
+
+    const start = Math.round(i * scale);
+    const span = Math.max(1, Math.round(len * scale));
+    for (let k = 0; k < span && start + k < out.length; k++) {
+      out[start + k] = k === 0 ? r.offset : HOLD;
+    }
+    i += len;
+  }
+  return out;
 }
