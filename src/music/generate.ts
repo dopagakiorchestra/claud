@@ -16,7 +16,7 @@
  */
 
 import { mod12 } from "./notes";
-import { REST, type Step } from "./melody";
+import { HOLD, REST, type Step } from "./melody";
 
 /** メロディを載せるコードの情報。 */
 export interface ChordSpan {
@@ -234,9 +234,9 @@ export function generateMelody(o: GenerateOptions): Step[] {
       if (tonicNear !== undefined) offset = tonicNear;
     }
 
-    // 同じ高さを続けて書くと1つの長い音になる
+    // 先頭に音を置き、続きは伸ばしの印で埋める
     for (let k = 0; k < slot.dur && slot.start + k < total; k++) {
-      steps[slot.start + k] = offset;
+      steps[slot.start + k] = k === 0 ? offset : HOLD;
     }
   });
 

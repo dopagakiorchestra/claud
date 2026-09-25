@@ -1335,3 +1335,13 @@ button:focus-visible {
   padding: 5px 8px;
   font-size: 13px;
 }
+
+/*
+ * 同じ高さを打ち直した音。
+ * 伸ばしと見分けがつかないと「なぜ2回鳴るのか」が分からなくなるので、
+ * 左に切れ目を入れて、音が分かれていることを示す。
+ */
+.roll-cell.on.restruck {
+  border-radius: 4px 0 0 4px;
+  border-left: 2px solid var(--bg-raised);
+}

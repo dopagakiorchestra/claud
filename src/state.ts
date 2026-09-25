@@ -8,10 +8,13 @@
 import { hasQuality } from "./music/chords";
 import { CHORD_PATTERNS, BASS_PATTERNS, DRUM_PATTERNS } from "./music/patterns";
 import { SCALES } from "./music/scales";
+import { HOLD, REST, type Step } from "./music/melody";
 import { makeSlot, type ChordSlot, type Song } from "./music/song";
 import { INSTRUMENTS } from "./audio/instruments";
 
 const STORAGE_KEY = "chord-studio:song:v1";
+/** 今のメロディの記録方式。これより古い保存データは読み込み時に変換する。 */
+const MELODY_FORMAT = 2;
 /** 名前を付けて保存した進行の置き場。 */
 const SAVED_KEY = "chord-studio:saved:v1";
 /** 保存できる件数の上限。 */
@@ -40,6 +43,7 @@ export const DEFAULT_SONG: Song = {
   tail: true,
   melodyEnabled: false,
   melody: [],
+  melodyFormat: MELODY_FORMAT,
   melodyStepsPerBeat: 2,
   melodyInstrument: "epiano",
   melodyOctave: 0,
@@ -94,7 +98,12 @@ export function normalizeSong(raw: unknown): Song {
 
     melodyEnabled:
       typeof o.melodyEnabled === "boolean" ? o.melodyEnabled : DEFAULT_SONG.melodyEnabled,
-    melody: normalizeMelody(o.melody),
+    // 古い保存データは、読み込むときに新しい記録方式へ直す
+    melody:
+      Number(o.melodyFormat) >= 2
+        ? normalizeMelody(o.melody)
+        : upgradeMelody(normalizeMelody(o.melody)),
+    melodyFormat: MELODY_FORMAT,
     melodyStepsPerBeat: [1, 2, 3, 4].includes(Number(o.melodyStepsPerBeat))
       ? Number(o.melodyStepsPerBeat)
       : DEFAULT_SONG.melodyStepsPerBeat,
@@ -109,14 +118,31 @@ export function normalizeSong(raw: unknown): Song {
 }
 
 /** メロディのステップ配列を安全な値に整える。 */
-function normalizeMelody(raw: unknown): Array<number | null> {
+function normalizeMelody(raw: unknown): Step[] {
   if (!Array.isArray(raw)) return [];
   // 音の高さは主音からの半音数。行の範囲（0〜2オクターブ）を大きく外れる値は捨てる。
   return raw.slice(0, 4096).map((v) => {
     if (typeof v !== "number" || !Number.isFinite(v)) return null;
     const n = Math.round(v);
+    if (n === HOLD) return HOLD;
     return n >= -24 && n <= 48 ? n : null;
   });
+}
+
+/**
+ * 古い記録方式（同じ高さが隣り合っていれば1つの長い音）を、
+ * 伸ばしを明示する方式へ変換する。
+ *
+ * 変換しないと、昔保存した曲の伸ばしていた音が連打に変わってしまう。
+ */
+function upgradeMelody(steps: Step[]): Step[] {
+  const out: Step[] = [];
+  for (let i = 0; i < steps.length; i++) {
+    const s = steps[i];
+    if (s !== REST && s !== HOLD && s === steps[i - 1]) out.push(HOLD);
+    else out.push(s);
+  }
+  return out;
 }
 
 /** URL に載せるための最小限のオブジェクト（id は復元時に振り直す）。 */

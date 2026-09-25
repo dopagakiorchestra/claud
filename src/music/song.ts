@@ -65,8 +65,17 @@ export interface Song {
   // --- メロディ ---
   /** メロディを鳴らすか。 */
   melodyEnabled: boolean;
-  /** 各ステップの音。主音からの半音数、null は休符。 */
+  /** 各ステップの音。主音からの半音数、HOLD は伸ばし、null は休符。 */
   melody: Step[];
+  /**
+   * メロディの記録方式。
+   *
+   * 1 … 同じ高さが隣り合っていれば1つの長い音（古い保存データ）
+   * 2 … 伸ばしを HOLD で明示する（同じ音を連打できる）
+   *
+   * 読み込み時に 1 を 2 へ変換する。昔保存した曲の響きを変えないため。
+   */
+  melodyFormat: number;
   /** 1拍あたりのステップ数（2 = 8分, 4 = 16分）。 */
   melodyStepsPerBeat: number;
   melodyInstrument: string;
