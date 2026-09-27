@@ -300,9 +300,11 @@ export async function saveBlob(blob: Blob, filename: string): Promise<SaveOutcom
 
   if (saveStrategyFor(filename, blob.type) === "share") {
     try {
+      // 渡すのはファイルだけ。title や text を添えると、iOS はそれを
+      // 別の共有項目として扱い、「"ファイル"に保存」したときに
+      // 音声ファイルとは別にテキストまで保存されてしまう。
       await navigator.share({
         files: [new File([blob], filename, { type: blob.type })],
-        title: filename,
       });
       return "shared";
     } catch (err) {
