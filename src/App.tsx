@@ -24,6 +24,7 @@ import { ChordCard } from "./components/ChordCard";
 import { FloatingTransport } from "./components/FloatingTransport";
 import { Keyboard } from "./components/Keyboard";
 import { NumberField } from "./components/NumberField";
+import { ChordText } from "./components/ChordText";
 import { MelodyGrid } from "./components/MelodyGrid";
 import { Palette } from "./components/Palette";
 import {
@@ -1277,6 +1278,22 @@ export default function App() {
           setToast(`「${entry.name}」を読み込みました`);
         }}
         onDelete={(entry) => setSaved(deleteSavedSong(entry.id))}
+      />
+
+      {/* --- テキストから読み込む --- */}
+      <ChordText
+        song={song}
+        onApply={(slots, mode) => {
+          updateChords(
+            (chords) => (mode === "replace" ? slots : [...chords, ...slots]),
+            mode === "replace" ? "text-replace" : "text-append",
+          );
+          setToast(
+            mode === "replace"
+              ? `${slots.length}個のコードに置き換えました`
+              : `${slots.length}個のコードを末尾に追加しました`,
+          );
+        }}
       />
 
       {/* --- パレット --- */}

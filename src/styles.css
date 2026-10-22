@@ -1345,3 +1345,61 @@ button:focus-visible {
   border-radius: 4px 0 0 4px;
   border-left: 2px solid var(--bg-raised);
 }
+
+/* --- テキストからの読み込み --- */
+
+.chord-text {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 10px 11px;
+  font-size: 15px;
+  line-height: 1.7;
+  resize: vertical;
+  /* コード名は英数字なので、等幅のほうが揃って読みやすい */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.chord-text:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.parse-result {
+  margin: 10px 0 12px;
+}
+
+.parse-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+/* 読み取れたコードを、実際に表示される名前で見せる */
+.parse-chip {
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 13px;
+  background: var(--accent-tint);
+  white-space: nowrap;
+}
+
+.parse-bad {
+  color: var(--danger);
+}
+
+.parse-errors {
+  margin: 6px 0 0;
+  padding-left: 1.2em;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.parse-errors code {
+  color: var(--danger);
+  font-size: 13px;
+}

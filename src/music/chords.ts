@@ -58,6 +58,34 @@ export const QUALITIES: ChordQuality[] = [
   { id: "13", suffix: "13", label: "サーティーンス", intervals: [0, 4, 10, 14, 21] },
   { id: "maj13", suffix: "maj13", label: "メジャーサーティーンス", intervals: [0, 4, 11, 14, 21] },
   { id: "6/9", suffix: "6/9", label: "シックスナインス", intervals: [0, 4, 7, 9, 14] },
+
+  // --- テンションを変化させたもの（ジャズでよく出る） ---
+  // いずれも5度を省いている。5度は響きを決めないわりに場所を取るので、
+  // 入れるとテンションが埋もれて狙いの色が出なくなる。
+  {
+    id: "7alt",
+    suffix: "7alt",
+    label: "オルタード（1,3,♭7,♭9,♭13）",
+    intervals: [0, 4, 10, 13, 20],
+  },
+  {
+    id: "maj9#11",
+    suffix: "maj9(#11)",
+    label: "メジャー9th シャープ11th",
+    intervals: [0, 4, 11, 14, 18],
+  },
+  {
+    id: "13b9",
+    suffix: "13(b9)",
+    label: "サーティーンス・フラットナインス",
+    intervals: [0, 4, 10, 13, 21],
+  },
+  {
+    id: "7#5#9",
+    suffix: "7(#5#9)",
+    label: "セブンス・シャープファイブ・シャープナインス",
+    intervals: [0, 4, 8, 10, 15],
+  },
 ];
 
 const QUALITY_BY_ID = new Map(QUALITIES.map((q) => [q.id, q]));
